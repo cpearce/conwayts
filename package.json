@@ -1,0 +1,24 @@
+{
+    "name": "conwayts",
+    "version": "1.0.0",
+    "description": "Conways game of life.",
+    "source": "src/index.html",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "npx parcel src/index.html",
+        "build": "npx parcel build src/index.html"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/cpearce/conwayts.git"
+    },
+    "author": "Chris Pearce <chris@pearce.org.nz>",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/cpearce/conwayts/issues"
+    },
+    "homepage": "https://github.com/cpearce/conwayts#readme",
+    "devDependencies": {
+        "parcel": "^2.7.0"
+    }
+}
