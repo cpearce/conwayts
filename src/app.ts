@@ -34,30 +34,25 @@ class Board {
     }
 
     get(row: number, col: number): number {
-        if (row < 0 || row >= this.height || col < 0 || col >= this.width) {
-            return DEAD;
-        }
         return this.board[row][col];
     }
 
-    neighbours(row: number, col: number): number {
-        const deltas = [
-            [-1, -1],
-            [-1, 0],
-            [-1, 1],
-            [0, -1],
-            [0, 1],
-            [1, -1],
-            [1, 0],
-            [1, 1],
-        ];
-        let count = 0;
-        for (let d of deltas) {
-            let dx = d[0];
-            let dy = d[1];
-            count += this.get(row + dy, col + dx);
+    fieldSum(row: number, col: number): number {
+        let sum = 0;
+        for (
+            let y = Math.max(0, row - 1);
+            y <= Math.min(this.height - 1, row + 1);
+            y++
+        ) {
+            for (
+                let x = Math.max(0, col - 1);
+                x <= Math.min(this.width - 1, col + 1);
+                x++
+            ) {
+                sum += this.get(y, x);
+            }
         }
-        return count;
+        return sum;
     }
 }
 
@@ -65,28 +60,29 @@ let board: Board = new Board(800, 600);
 let buffer: Board = new Board(800, 600);
 
 function step() {
-    // Rules:
-    //
-    // Any live cell with two or three neighbours lives.
-    // Any dead cell with three live neighbours comes to life.
-    // All other cells die/remain dead.
-
+    // https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life#Algorithms
+    // "If the sum of all nine fields in a given neighbourhood is three,
+    // the inner field state for the next generation will be life;
+    // if the all-field sum is four, the inner field retains its current state;
+    // and every other sum sets the inner field to death.
     let next = buffer;
     for (let row = 0; row < board.height; row++) {
         for (let col = 0; col < board.width; col++) {
-            const n = board.neighbours(row, col);
-            let value = DEAD;
-            if (board.get(row, col) == ALIVE) {
-                if (n == 2 || n == 3) {
-                    // Any live cell with two or three neighbours lives.
-                    value = ALIVE;
+            const n = board.fieldSum(row, col);
+            switch (n) {
+                case 3: {
+                    next.set(row, col, ALIVE);
+                    break;
                 }
-            } else if (n == 3) {
-                // Any dead cell with three live neighbours comes to life.
-                value = ALIVE;
+                case 4: {
+                    next.set(row, col, board.get(row, col));
+                    break;
+                }
+                default: {
+                    next.set(row, col, DEAD);
+                    break;
+                }
             }
-            // All other cells die/remain dead.
-            next.set(row, col, value);
         }
     }
     let tmp = board;
@@ -106,11 +102,10 @@ function render() {
     for (let row = 0; row < canvas.height; row++) {
         for (let col = 0; col < canvas.width; col++) {
             // Mark alive pixels as non transparent.
-            if (board.get(row, col) == ALIVE) {
-                imageData.data[stride * row + col * 4 + 3] = 255;
-            } else {
-                imageData.data[stride * row + col * 4 + 3] = 0;
-            }
+            // The alive cells have board.board[row][col] == 1, so
+            // here we set the alpha channel to either 0 or 255.
+            const offset = stride * row + col * 4 + 3;
+            imageData.data[offset] = 255 * board.get(row, col);
         }
     }
     ctx.putImageData(imageData, 0, 0);
