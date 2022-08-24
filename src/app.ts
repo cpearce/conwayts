@@ -132,9 +132,11 @@ function toggle() {
 }
 
 function reset() {
-    running = true;
     board.randomize();
     render();
+    if (!running) {
+        toggle();
+    }
 }
 
 document.body.addEventListener('keypress', (ev) => {
