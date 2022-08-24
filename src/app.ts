@@ -151,3 +151,15 @@ document.body.addEventListener('keypress', (ev) => {
         }
     }
 });
+
+// Ensure we draw the initial board.
+render();
+
+// Ensure the first time we focus the window, we start a round;
+// we don't start before people are looking, that would waste battery!
+function startOnFocus() {
+    window.removeEventListener('focus', startOnFocus);
+    toggle();
+}
+
+window.addEventListener('focus', startOnFocus);
